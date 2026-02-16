@@ -73,6 +73,8 @@ export interface ScrapeListsResultMsg {
   type: "SCRAPE_LISTS_RESULT";
   lists: SavedList[];
   places: Place[];
+  /** Map of list name → detail page URL, returned when scraping the top-level saved page. */
+  listDetailUrls?: Record<string, string>;
 }
 
 export interface MovePlacesMsg {
