@@ -12,51 +12,86 @@
  *  5. Text content matching (last resort)
  *
  * All values are CSS selector strings unless noted otherwise.
- * Placeholders marked with TODO require manual DevTools inspection.
  */
 
 export const INTERESTS_SELECTORS = {
-  /** Container element for each saved list on the interests/saved page */
-  listContainer: '[data-list-id]', // TODO: inspect actual DOM
+  /* ──────────── Collections / Saved page ──────────── */
 
-  /** List name text within a list container */
-  listName: 'h2', // TODO: inspect actual DOM
+  /** Container element for each saved list on the interests/saved page.
+   *  aria-label follows pattern: "NAME, N item(s), Private|Shared" */
+  listContainer: 'a[href*="/interests/saved/list/"]',
 
-  /** Place count label within a list container */
-  listPlaceCount: '[aria-label*="place"]', // TODO: inspect actual DOM
+  /** List name — no stable DOM child selector exists.
+   *  Parse from listContainer's aria-label with listAriaLabelRegex → group 1 */
+  listName: null as null,
 
-  /** Individual place entry row */
-  placeEntry: '[data-place-id]', // TODO: inspect actual DOM
+  /** Place count — no stable DOM child selector exists.
+   *  Parse from listContainer's aria-label with listAriaLabelRegex → group 2 */
+  listPlaceCount: null as null,
 
-  /** Place name text within a place entry */
-  placeName: 'a[href*="/maps/place/"]', // TODO: inspect actual DOM
+  /** Regex to extract name, count, and privacy from a collection card's aria-label.
+   *  Groups: [1] name, [2] count string (e.g. "99+ items"), [3] "Private" | "Shared" */
+  listAriaLabelRegex: /^(.+?),\s*(\d+\+?\s*items?),\s*(Private|Shared)$/,
 
-  /** Link to the place's Maps page */
-  placeUrl: 'a[href*="/maps/place/"]', // TODO: inspect actual DOM
+  /** "Create a new collection" button */
+  createCollectionButton: 'a[aria-label="Create a new collection"]',
 
-  /** Address snippet within a place entry */
-  placeAddress: '[data-address]', // TODO: inspect actual DOM
+  /** Search input */
+  searchInput: 'input[aria-label="Search in Saved"][role="combobox"]',
 
-  /** Checkbox for selecting a place (bulk operations) */
-  moveCheckbox: 'input[type="checkbox"]', // TODO: inspect actual DOM
+  /* ──────────── List detail page ──────────── */
 
-  /** "Move to collection" action button */
-  moveToCollectionButton: '[aria-label*="Move"]', // TODO: inspect actual DOM
+  /** List title heading (the visible <h2> on the list detail page) */
+  listDetailTitle: 'h2',
 
-  /** Target list option in the move dialog */
-  targetListOption: '[role="option"]', // TODO: inspect actual DOM
-};
+  /** Wrapper div holding the full list (carries the list ID in data-id) */
+  listDataContainer: 'div[data-viewer-group][data-id]',
 
-export const PLACE_SELECTORS = {
-  /** Business status text ("Permanently closed", "Temporarily closed") */
-  businessStatus: '[data-attrid="kc:/location/location:status"]', // TODO: inspect actual DOM
+  /** Individual place entry wrapper (carries place identity in data-item-id) */
+  placeEntry: 'div[data-item-id]',
 
-  /** Category/type label (e.g. "Restaurant", "Bakery") */
-  placeCategory: 'button[jsaction*="category"]', // TODO: inspect actual DOM
+  /** Clickable row container for each place entry */
+  placeEntryLink: 'div[role="link"][data-viewer-entrypoint]',
 
-  /** Full address text */
-  placeAddress: '[data-item-id="address"]', // TODO: inspect actual DOM
+  /** Place name link (href → /maps/place/…; aria-label = place name) */
+  placeName: 'a[href*="/maps/place/"][aria-label]',
 
-  /** Indicator that the place was not found (redirect to search results) */
-  notFoundIndicator: '#search', // TODO: inspect actual DOM
+  /** Link to the place's Maps page (same element as placeName) */
+  placeUrl: 'a[href*="/maps/place/"][aria-label]',
+
+  /** Star-rating indicator (aria-label e.g. "Rated 5 out of 5") */
+  placeStarRating: 'div[aria-label^="Rated"]',
+
+  /** Place thumbnail image (only 1 <img> per data-item-id wrapper) */
+  placeImage: 'div[data-item-id] img',
+
+  /** "More options" overflow button per place (aria-label = "More options for {name}") */
+  placeMoreOptions: 'button[aria-label^="More options for"]',
+
+  /** "More options" button for the list itself — interpolate list name at runtime.
+   *  Usage: `button[aria-label="More options for ${listName}"]` */
+  listMoreOptionsTemplate: 'button[aria-label="More options for {{LIST_NAME}}"]',
+
+  /* ──────────── Overflow menu items (via data-action) ──────────── */
+
+  /** "Edit" action for the list */
+  menuEditList: 'li[role="menuitem"][data-action="actionEditList"]',
+
+  /** "Edit" action for a place item */
+  menuEditItem: 'li[role="menuitem"][data-action="actionEditItem"]',
+
+  /** "Add to a collection" action */
+  menuAddItemToList: 'li[role="menuitem"][data-action="actionAddItemToList"]',
+
+  /** "Move to a collection" action */
+  menuMoveItemToList: 'li[role="menuitem"][data-action="actionMoveItemToList"]',
+
+  /** "Remove" action (delete item from list) */
+  menuDeleteItem: 'li[role="menuitem"][data-action="actionDeleteItem"]',
+
+  /** "Report" action */
+  menuReportAbuse: 'li[role="menuitem"][data-action="actionReportAbuse"]',
+
+  /** Back button (on list detail page) */
+  backButton: 'button[aria-label="Back"]',
 };
