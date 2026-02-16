@@ -8,7 +8,7 @@ Create the following directory layout:
 
 ```
 gmaps-tidy/
-├── manifest.json              # Firefox Manifest V2
+├── manifest.json              # Firefox Manifest V3
 ├── package.json               # npm config (TS, build tooling)
 ├── tsconfig.json              # TypeScript config
 ├── webpack.config.js          # Bundle background, content scripts, popup
@@ -39,13 +39,14 @@ gmaps-tidy/
 
 ### 0.2 — Configuration files
 
-**`manifest.json`** (Manifest V2):
-- `background.scripts`: bundled background script
+**`manifest.json`** (Manifest V3):
+- `manifest_version`: 3
+- `background.scripts`: `["background.js"]` (Firefox MV3 uses event pages, not service workers)
 - `content_scripts`: two entries — one for `interests/saved`, one for `maps/place/*`
-- `browser_action.default_popup`: popup HTML
+- `action.default_popup`: popup HTML (MV3 uses `action` instead of `browser_action`)
 - `options_ui.page`: options HTML
-- `permissions`: `tabs`, `storage`, `activeTab`
-- `host_permissions` (as `permissions` in MV2): `https://www.google.com/interests/*`, `https://www.google.com/maps/place/*`, `https://www.google.com/saved/*`
+- `permissions`: `["tabs", "storage", "activeTab", "alarms"]`
+- `host_permissions`: `["https://www.google.com/interests/*", "https://www.google.com/maps/place/*", "https://www.google.com/saved/*"]` (separate key in MV3)
 
 **`package.json`** dependencies:
 - `typescript`, `webpack`, `webpack-cli`, `ts-loader`
@@ -147,6 +148,8 @@ Use a discriminated union with a `type` field. Provide `sendMessage()` and `onMe
 
 ### 1.3 — IndexedDB layer (`db.ts`)
 
+**Note on MV3 event page:** Since the background script can be suspended, IndexedDB is the source of truth for all long-lived state (audit queue, config, cached places). The background script must reload state from IndexedDB on every wakeup rather than relying on in-memory variables.
+
 Using `idb` library:
 
 - DB name: `gmaps-tidy`, version 1
@@ -210,7 +213,7 @@ export const DEFAULT_FALLBACK_LIST = 'Wishlist / Other';
 
 ### 2.1 — Message router
 
-Listen for messages from popup and content scripts. Dispatch to handler functions based on message type.
+Listen for messages from popup and content scripts via `browser.runtime.onMessage`. Dispatch to handler functions based on message type.
 
 ### 2.2 — Sync lists handler
 
@@ -222,22 +225,42 @@ On `SYNC_LISTS`:
 
 ### 2.3 — Audit orchestrator
 
+**MV3 event page design:** Firefox MV3 background scripts are event pages — they can be suspended when idle. The audit orchestrator must survive suspension by persisting all state to IndexedDB and using `browser.alarms` to drive the processing loop.
+
+**Persisted audit state** (stored in IndexedDB `config` store under key `auditState`):
+
+```ts
+interface AuditState {
+  listName: string;
+  queuedUrls: string[];   // mapsUrls remaining to process
+  currentIndex: number;
+  state: 'running' | 'paused' | 'done' | 'error';
+}
+```
+
 On `START_AUDIT { listName }`:
 1. Load places for `listName` from IndexedDB.
 2. Filter out places where `lastChecked` is within TTL (skip recently-verified).
-3. For each remaining place, sequentially:
-   a. Create a tab: `browser.tabs.create({ url: place.mapsUrl, active: false })`.
-   b. Wait for tab to finish loading (`browser.tabs.onUpdated` listener).
-   c. Send `SCRAPE_PLACE` to the tab's content script.
-   d. Receive `SCRAPE_PLACE_RESULT`, update place in IndexedDB.
-   e. Close the tab.
-   f. Wait `delayMs` before next place.
-   g. Send `AUDIT_PROGRESS` to popup.
-4. On completion, send `AUDIT_COMPLETE` with all place data.
+3. Build the queue of URLs to check, save `AuditState` to IndexedDB.
+4. Create alarm: `browser.alarms.create('audit-tick', { when: Date.now() })`.
+
+On `browser.alarms.onAlarm` (name = `audit-tick`):
+1. Load `AuditState` from IndexedDB. If `state !== 'running'`, stop.
+2. Take the next URL from the queue.
+3. Create a tab: `browser.tabs.create({ url, active: false })`.
+4. Wait for tab to finish loading (`browser.tabs.onUpdated` listener).
+5. Send `SCRAPE_PLACE` to the tab's content script.
+6. Receive `SCRAPE_PLACE_RESULT`, update place in IndexedDB.
+7. Close the tab.
+8. Advance `currentIndex`, save `AuditState`.
+9. If more items remain, schedule next: `browser.alarms.create('audit-tick', { delayInMinutes: delayMs / 60000 })`.
+10. If done, set `state = 'done'`, save, notify popup.
+
+**Note:** `browser.alarms` minimum granularity is ~1 minute in some browsers, but Firefox allows sub-minute alarms for extensions. For the 2–5s delay, we can alternatively use `setTimeout` within the same event page wakeup cycle (processing one item per alarm wakeup, with `setTimeout` for the inter-item delay, and the alarm as a fallback to restart if the page was suspended mid-batch). The alarm ensures the loop restarts even after suspension.
 
 State machine for pause/resume:
-- `PAUSE_AUDIT` sets a flag; the loop checks this flag between iterations.
-- `RESUME_AUDIT` clears the flag and the loop continues.
+- `PAUSE_AUDIT`: sets `state = 'paused'` in IndexedDB, clears the alarm.
+- `RESUME_AUDIT`: sets `state = 'running'`, creates a new alarm to continue.
 
 ### 2.4 — Move executor
 
