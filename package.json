@@ -1,0 +1,24 @@
+{
+  "name": "gmaps-tidy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Firefox extension to audit and reorganize Google Maps saved places",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch"
+  },
+  "dependencies": {
+    "idb": "^8.0.2",
+    "preact": "^10.25.4"
+  },
+  "devDependencies": {
+    "@types/firefox-webext-browser": "^120.0.4",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  }
+}
