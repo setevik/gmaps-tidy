@@ -14,7 +14,6 @@ export const DEFAULT_AUDIT_CONFIG: AuditConfig = {
 export const DEFAULT_CATEGORY_MAPPINGS: CategoryMapping[] = [
   { categories: ["Restaurant"], targetList: "Wishlist / Restaurants" },
   { categories: ["Bakery"], targetList: "Wishlist / Bakeries" },
-  { categories: ["Café", "Coffee shop"], targetList: "Wishlist / Cafés" },
   { categories: ["Bar"], targetList: "Wishlist / Bars" },
   {
     categories: ["Museum", "Art gallery"],
