@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "gmaps-tidy",
+  "version": "0.1.0",
+  "description": "Audit and reorganize your Google Maps saved places — remove dead entries, sort survivors into organized lists.",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/interests/saved*", "https://www.google.com/saved/*"],
+      "js": ["content/interests.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.google.com/maps/place/*"],
+      "js": ["content/place.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "gmaps-tidy"
+  },
+  "options_ui": {
+    "page": "options/index.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.google.com/interests/*",
+    "https://www.google.com/maps/place/*",
+    "https://www.google.com/saved/*"
+  ]
+}
