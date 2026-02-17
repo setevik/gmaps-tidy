@@ -1,0 +1,144 @@
+* { box-sizing: border-box; }
+
+.header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.content {
+  padding: 12px 16px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  color: #1a1a1a;
+}
+.btn:hover { background: #f5f5f5; }
+.btn:active { background: #e8e8e8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: #1a73e8;
+  color: #fff;
+  border-color: #1a73e8;
+}
+.btn-primary:hover { background: #1557b0; }
+.btn-primary:active { background: #174ea6; }
+.btn-primary:disabled { background: #93b9f0; border-color: #93b9f0; }
+
+.btn-sm { padding: 4px 8px; font-size: 12px; }
+
+.btn-block { width: 100%; justify-content: center; }
+
+/* ── Form elements ───────────────────────────────────── */
+
+.select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+/* ── Progress bar ────────────────────────────────────── */
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #1a73e8;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* ── Typography / utility ────────────────────────────── */
+
+.label { font-size: 12px; color: #666; margin-bottom: 4px; }
+.muted { color: #666; font-size: 12px; }
+.error-text { color: #c5221f; font-size: 13px; }
+
+/* ── Badges ──────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-red    { background: #fce8e6; color: #c5221f; }
+.badge-yellow { background: #fef7e0; color: #e37400; }
+.badge-green  { background: #e6f4ea; color: #137333; }
+.badge-gray   { background: #f1f3f4; color: #5f6368; }
+
+/* ── Lists ───────────────────────────────────────────── */
+
+.list-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.list-item:last-child { border-bottom: none; }
+
+/* ── Sections ────────────────────────────────────────── */
+
+.section { margin-bottom: 16px; }
+.section:last-child { margin-bottom: 0; }
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+/* ── Checkboxes ──────────────────────────────────────── */
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.checkbox-row input[type="checkbox"] { margin-top: 2px; }
+
+/* ── Layout helpers ──────────────────────────────────── */
+
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-4  { gap: 4px; }
+.gap-8  { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mb-8  { margin-bottom: 8px; }
