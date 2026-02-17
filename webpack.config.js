@@ -7,7 +7,7 @@ module.exports = (env, argv) => ({
     "content/interests": "./src/content/interests.ts",
     "content/place": "./src/content/place.ts",
     "popup/index": "./src/popup/index.tsx",
-    "options/index": "./src/options/index.ts",
+    "options/index": "./src/options/index.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
